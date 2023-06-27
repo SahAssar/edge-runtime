@@ -122,11 +122,8 @@ impl DenoRuntime {
         }
 
         let user_agent = "supabase-edge-runtime".to_string();
-        let base_url =
-            Url::from_directory_path(std::env::current_dir().map(|p| p.join(&service_path))?)
-                .unwrap();
-        // TODO: check for other potential main paths (eg: index.js, index.tsx)
-        let main_module_url = base_url.join("index.ts")?;
+        let base_url = service_path;
+        let main_module_url = base_url;
 
         // Note: this will load Mozilla's CAs (we may also need to support system certs)
         let root_cert_store = deno_tls::create_default_root_cert_store();
@@ -316,12 +313,12 @@ mod test {
         WorkerRuntimeOpts,
     };
     use std::collections::HashMap;
-    use std::path::PathBuf;
     use tokio::net::UnixStream;
     use tokio::sync::mpsc;
+    use url::Url;
 
     async fn create_runtime(
-        path: Option<PathBuf>,
+        path: Option<Url>,
         env_vars: Option<HashMap<String, String>>,
         user_conf: Option<WorkerRuntimeOpts>,
     ) -> DenoRuntime {
@@ -329,7 +326,10 @@ mod test {
 
         DenoRuntime::new(
             WorkerContextInitOpts {
-                service_path: path.unwrap_or(PathBuf::from("./test_cases/main")),
+                service_path: path.unwrap_or(
+                    Url::parse("http://localhost:9000/crates/base/test_cases/main/index.ts")
+                        .unwrap(),
+                ),
                 no_module_cache: false,
                 import_map_path: None,
                 env_vars: env_vars.unwrap_or(Default::default()),
@@ -583,7 +583,7 @@ mod test {
         worker_timeout_ms: u64,
     ) -> DenoRuntime {
         create_runtime(
-            Some(PathBuf::from(path)),
+            Some(Url::parse(path).unwrap()),
             None,
             Some(WorkerRuntimeOpts::UserWorker(UserWorkerRuntimeOpts {
                 memory_limit_mb: memory_limit,
@@ -603,7 +603,12 @@ mod test {
 
     #[tokio::test]
     async fn test_read_file_user_rt() {
-        let user_rt = create_basic_user_runtime("./test_cases/readFile", 5, 1000).await;
+        let user_rt = create_basic_user_runtime(
+            "http://localhost:9000/crates/base/test_cases/readFile/index.ts",
+            5,
+            1000,
+        )
+        .await;
         let (_tx, unix_stream_rx) = mpsc::unbounded_channel::<UnixStream>();
         let result = user_rt.run(unix_stream_rx).await;
         match result {

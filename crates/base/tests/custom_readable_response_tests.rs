@@ -9,7 +9,7 @@ use tokio::sync::mpsc;
 #[tokio::test]
 async fn test_custom_readable_stream_response() {
     integration_test!(
-        "./test_cases/main",
+        "http://localhost:9000/crates/base/test_cases/main/index.ts",
         8999,
         "readable-stream-resp",
         |resp: Result<reqwest::Response, reqwest::Error>| async {

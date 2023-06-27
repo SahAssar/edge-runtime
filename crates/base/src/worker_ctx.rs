@@ -5,6 +5,7 @@ use crate::utils::units::bytes_to_display;
 use anyhow::{anyhow, bail, Error};
 use cityhash::cityhash_1_1_1::city_hash_64;
 use cpu_timer::{get_thread_time, CPUAlarmVal, CPUTimer};
+use deno_core::url::Url;
 use hyper::{Body, Request, Response};
 use log::{debug, error};
 use sb_worker_context::essentials::{
@@ -15,7 +16,6 @@ use sb_worker_context::events::{
     BootEvent, BootFailure, LogEvent, LogLevel, PseudoEvent, UncaughtException, WorkerEvents,
 };
 use std::collections::HashMap;
-use std::path::PathBuf;
 use std::thread;
 use std::time::{Duration, Instant, SystemTime, UNIX_EPOCH};
 use tokio::net::UnixStream;
@@ -154,12 +154,6 @@ pub async fn create_worker(
     init_opts: WorkerContextInitOpts,
     event_manager_opts: Option<EventWorkerRuntimeOpts>,
 ) -> Result<mpsc::UnboundedSender<WorkerRequestMsg>, Error> {
-    let service_path = init_opts.service_path.clone();
-
-    if !service_path.exists() {
-        bail!("service does not exist {:?}", &service_path)
-    }
-
     let (worker_boot_result_tx, worker_boot_result_rx) = oneshot::channel::<Result<(), Error>>();
     let (unix_stream_tx, unix_stream_rx) = mpsc::unbounded_channel::<UnixStream>();
 
@@ -315,7 +309,7 @@ async fn send_user_worker_request(
 }
 
 pub async fn create_event_worker(
-    event_worker_path: PathBuf,
+    event_worker_path: Url,
     import_map_path: Option<String>,
     no_module_cache: bool,
 ) -> Result<mpsc::UnboundedSender<WorkerEvents>, Error> {
@@ -357,7 +351,7 @@ pub async fn create_user_worker_pool(
 
                     // derive worker key from service path
                     // if force create is set, add current epoch mili seconds to randomize
-                    let service_path = worker_options.service_path.to_str().unwrap_or("");
+                    let service_path = worker_options.service_path.clone();
                     let mut key_input = service_path.to_string();
                     if user_worker_rt_opts.force_create {
                         let cur_epoch_time = SystemTime::now().duration_since(UNIX_EPOCH)?;

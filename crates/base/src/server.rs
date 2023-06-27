@@ -2,6 +2,7 @@ use crate::worker_ctx::{
     create_event_worker, create_user_worker_pool, create_worker, WorkerRequestMsg,
 };
 use anyhow::Error;
+use deno_core::url::Url;
 use hyper::{server::conn::Http, service::Service, Body, Request, Response};
 use log::{debug, error, info};
 use sb_worker_context::essentials::{
@@ -12,7 +13,6 @@ use std::future::Future;
 use std::net::IpAddr;
 use std::net::Ipv4Addr;
 use std::net::SocketAddr;
-use std::path::Path;
 use std::pin::Pin;
 use std::str;
 use std::str::FromStr;
@@ -96,25 +96,23 @@ impl Server {
 
         // Creates Event Worker
         if let Some(events_service_path) = maybe_events_service_path {
-            let events_path = Path::new(&events_service_path);
-            let events_path_buf = events_path.to_path_buf();
+            let events_path = Url::parse(&events_service_path).unwrap();
 
             let event_worker =
-                create_event_worker(events_path_buf, import_map_path.clone(), no_module_cache)
+                create_event_worker(events_path, import_map_path.clone(), no_module_cache)
                     .await
                     .expect("Event worker could not be created");
 
             worker_event_sender = Some(event_worker);
         }
-
         // create a user worker pool
         let user_worker_msgs_tx = create_user_worker_pool(worker_event_sender).await?;
 
         // create main worker
-        let main_path = Path::new(&main_service_path);
+        let main_path = Url::parse(&main_service_path).unwrap();
         let main_worker_req_tx = create_worker(
             WorkerContextInitOpts {
-                service_path: main_path.to_path_buf(),
+                service_path: main_path,
                 import_map_path,
                 no_module_cache,
                 conf: WorkerRuntimeOpts::MainWorker(MainWorkerRuntimeOpts {

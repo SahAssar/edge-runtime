@@ -10,7 +10,10 @@ use tokio::sync::oneshot;
 async fn test_null_body_with_204_status() {
     let user_rt_opts = UserWorkerRuntimeOpts::default();
     let opts = WorkerContextInitOpts {
-        service_path: "./test_cases/empty-response".into(),
+        service_path: url::Url::parse(
+            "http://localhost:9000/crates/base/test_cases/empty-response/index.ts",
+        )
+        .unwrap(),
         no_module_cache: false,
         import_map_path: None,
         env_vars: HashMap::new(),
@@ -43,7 +46,10 @@ async fn test_null_body_with_204_status() {
 async fn test_null_body_with_204_status_post() {
     let user_rt_opts = UserWorkerRuntimeOpts::default();
     let opts = WorkerContextInitOpts {
-        service_path: "./test_cases/empty-response".into(),
+        service_path: url::Url::parse(
+            "http://localhost:9000/crates/base/test_cases/empty-response/index.ts",
+        )
+        .unwrap(),
         no_module_cache: false,
         import_map_path: None,
         env_vars: HashMap::new(),
