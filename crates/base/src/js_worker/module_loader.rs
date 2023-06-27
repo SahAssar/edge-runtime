@@ -56,7 +56,7 @@ pub struct DefaultModuleLoader {
 
 impl DefaultModuleLoader {
     pub fn new(
-        root_path: PathBuf,
+        root_path: Url,
         maybe_import_map: Option<ImportMap>,
         no_cache: bool,
         allow_remote: bool,
@@ -80,7 +80,8 @@ impl DefaultModuleLoader {
             http_client,
             blob_store,
         );
-        let permissions = module_fetcher::permissions::Permissions::new(root_path);
+        let permissions =
+            module_fetcher::permissions::Permissions::new(PathBuf::from(String::from(root_path)));
         let emit_cache = EmitCache::new(deno_dir.gen_cache.clone());
         let caches_def = caches::Caches::default();
         let parsed_source_cache = ParsedSourceCache::new(caches_def.dep_analysis_db(&deno_dir));

@@ -18,3 +18,4 @@ serde.workspace = true
 tokio.workspace = true
 uuid.workspace = true
 event_worker ={ version = "0.1.0", path = "../event_worker" }
+deno_core = { workspace = true }

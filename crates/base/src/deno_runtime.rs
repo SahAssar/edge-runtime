@@ -9,7 +9,7 @@ use import_map::{parse_from_json, ImportMap};
 use log::error;
 use serde::de::DeserializeOwned;
 use std::collections::HashMap;
-use std::path::{Path, PathBuf};
+use std::path::Path;
 use std::rc::Rc;
 use std::time::Duration;
 use std::{fmt, fs};
@@ -116,23 +116,14 @@ impl DenoRuntime {
         set_v8_flags();
 
         let user_agent = "supabase-edge-runtime".to_string();
-        let base_dir_path = std::env::current_dir().map(|p| p.join(&service_path))?;
-        let base_url = Url::from_directory_path(&base_dir_path).unwrap();
-        // TODO: check for other potential main paths (eg: index.js, index.tsx)
-        let main_module_url = base_url.join("index.ts")?;
+        let base_url = service_path;
+        let base_dir_path = base_url.clone();
+        let main_module_url = base_dir_path.clone();
 
         // Note: this will load Mozilla's CAs (we may also need to support system certs)
         let root_cert_store = deno_tls::create_default_root_cert_store();
 
-        let mut net_access_disabled = false;
-        let mut module_root_path = base_dir_path.clone();
-        if conf.is_user_worker() {
-            let user_conf = conf.as_user_worker().unwrap();
-            if let Some(custom_module_root) = &user_conf.custom_module_root {
-                module_root_path = PathBuf::from(custom_module_root);
-            }
-            net_access_disabled = user_conf.net_access_disabled
-        }
+        let net_access_disabled = false;
 
         let extensions = vec![
             sb_core_permissions::init_ops(net_access_disabled),
@@ -172,6 +163,7 @@ impl DenoRuntime {
         ];
 
         let import_map = load_import_map(import_map_path)?;
+        let module_root_path = base_dir_path.clone();
         let module_loader = DefaultModuleLoader::new(
             module_root_path,
             import_map,
@@ -321,19 +313,21 @@ mod test {
         WorkerRuntimeOpts,
     };
     use std::collections::HashMap;
-    use std::path::PathBuf;
     use tokio::net::UnixStream;
     use tokio::sync::mpsc;
+    use url::Url;
 
     async fn create_runtime(
-        path: Option<PathBuf>,
+        path: Option<Url>,
         env_vars: Option<HashMap<String, String>>,
         user_conf: Option<WorkerRuntimeOpts>,
     ) -> DenoRuntime {
         let (worker_pool_tx, _) = mpsc::unbounded_channel::<UserWorkerMsgs>();
 
         DenoRuntime::new(WorkerContextInitOpts {
-            service_path: path.unwrap_or(PathBuf::from("./test_cases/main")),
+            service_path: path.unwrap_or(
+                Url::parse("http://localhost:9000/crates/base/test_cases/main/index.ts").unwrap(),
+            ),
             no_module_cache: false,
             import_map_path: None,
             env_vars: env_vars.unwrap_or(Default::default()),
@@ -611,7 +605,7 @@ mod test {
         worker_timeout_ms: u64,
     ) -> DenoRuntime {
         create_runtime(
-            Some(PathBuf::from(path)),
+            Some(Url::parse(path).unwrap()),
             None,
             Some(WorkerRuntimeOpts::UserWorker(UserWorkerRuntimeOpts {
                 memory_limit_mb: memory_limit,
@@ -635,7 +629,12 @@ mod test {
 
     #[tokio::test]
     async fn test_read_file_user_rt() {
-        let user_rt = create_basic_user_runtime("./test_cases/readFile", 10, 1000).await;
+        let user_rt = create_basic_user_runtime(
+            "http://localhost:9000/crates/base/test_cases/readFile/index.ts",
+            5,
+            1000,
+        )
+        .await;
         let (_tx, unix_stream_rx) = mpsc::unbounded_channel::<UnixStream>();
         let result = user_rt.run(unix_stream_rx).await;
         match result {

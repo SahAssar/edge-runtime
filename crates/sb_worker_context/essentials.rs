@@ -1,9 +1,9 @@
 use anyhow::Error;
+use deno_core::url::Url;
 use enum_as_inner::EnumAsInner;
 use event_worker::events::WorkerEventWithMetadata;
 use hyper::{Body, Request, Response};
 use std::collections::HashMap;
-use std::path::PathBuf;
 use tokio::sync::{mpsc, oneshot};
 use uuid::Uuid;
 
@@ -69,7 +69,7 @@ pub enum WorkerRuntimeOpts {
 
 #[derive(Debug)]
 pub struct WorkerContextInitOpts {
-    pub service_path: PathBuf,
+    pub service_path: Url,
     pub no_module_cache: bool,
     pub import_map_path: Option<String>,
     pub env_vars: HashMap<String, String>,

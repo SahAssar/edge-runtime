@@ -6,13 +6,13 @@ use crate::rt_worker::worker::{Worker, WorkerHandler};
 use crate::rt_worker::worker_pool::WorkerPool;
 use anyhow::{bail, Error};
 use cpu_timer::{CPUAlarmVal, CPUTimer};
+use deno_core::url::Url;
 use event_worker::events::{BootEvent, PseudoEvent, WorkerEventWithMetadata, WorkerEvents};
 use hyper::{Body, Request, Response};
 use log::{debug, error};
 use sb_worker_context::essentials::{
     EventWorkerRuntimeOpts, UserWorkerMsgs, WorkerContextInitOpts, WorkerRuntimeOpts,
 };
-use std::path::PathBuf;
 use std::thread;
 use std::time::{Duration, Instant};
 use tokio::net::UnixStream;
@@ -225,7 +225,7 @@ pub async fn send_user_worker_request(
 }
 
 pub async fn create_events_worker(
-    events_worker_path: PathBuf,
+    events_worker_path: Url,
     import_map_path: Option<String>,
     no_module_cache: bool,
 ) -> Result<mpsc::UnboundedSender<WorkerEventWithMetadata>, Error> {

@@ -1,6 +1,7 @@
 use crate::rt_worker::worker_ctx::{create_worker, send_user_worker_request, UserWorkerProfile};
 use anyhow::{anyhow, bail, Error};
 use cityhash::cityhash_1::city_hash_64;
+use deno_core::url::Url;
 use event_worker::events::WorkerEventWithMetadata;
 use http::{Request, Response};
 use hyper::Body;
@@ -9,7 +10,6 @@ use sb_worker_context::essentials::{
     CreateUserWorkerResult, UserWorkerMsgs, WorkerContextInitOpts, WorkerRuntimeOpts,
 };
 use std::collections::HashMap;
-use std::path::Path;
 use std::time::{SystemTime, UNIX_EPOCH};
 use tokio::sync::mpsc;
 use tokio::sync::mpsc::UnboundedSender;
@@ -138,8 +138,8 @@ impl WorkerPool {
         self.user_workers.remove(&key);
     }
 
-    fn derive_worker_key(&self, service_path: &Path, force_create: bool) -> (u64, String) {
-        let mut key_input = service_path.to_str().unwrap_or("").to_string();
+    fn derive_worker_key(&self, service_path: &Url, force_create: bool) -> (u64, String) {
+        let mut key_input = service_path.to_string();
         if force_create {
             let cur_epoch_time = SystemTime::now().duration_since(UNIX_EPOCH).unwrap();
             key_input = format!("{}-{}", key_input, cur_epoch_time.as_millis());

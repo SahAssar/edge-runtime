@@ -3533,6 +3533,7 @@ name = "sb_worker_context"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "deno_core",
  "enum-as-inner 0.6.0",
  "event_worker",
  "hyper",
