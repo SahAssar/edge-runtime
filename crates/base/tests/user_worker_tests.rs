@@ -10,7 +10,10 @@ use tokio::sync::oneshot;
 async fn test_user_worker_json_imports() {
     let user_rt_opts = UserWorkerRuntimeOpts::default();
     let opts = WorkerContextInitOpts {
-        service_path: "./test_cases/json_import".into(),
+        service_path: url::Url::parse(
+            "http://localhost:9000/crates/base/test_cases/json_import/index.ts",
+        )
+        .unwrap(),
         no_module_cache: false,
         import_map_path: None,
         env_vars: HashMap::new(),

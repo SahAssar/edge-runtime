@@ -21,11 +21,13 @@ mod supabase_startup_snapshot {
     use sb_workers::events::sb_user_event_worker;
     use sb_workers::sb_user_workers;
     use std::path::Path;
+    use url::Url;
 
     fn transpile_ts_for_snapshotting(
         file_source: &ExtensionFileSource,
     ) -> Result<ModuleCode, AnyError> {
-        let media_type = MediaType::from_path(Path::new(&file_source.specifier));
+        let media_url = Url::parse(file_source.specifier).unwrap();
+        let media_type = MediaType::from_specifier(&media_url);
 
         let should_transpile = match media_type {
             MediaType::JavaScript => false,

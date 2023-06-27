@@ -13,7 +13,10 @@ use sb_worker_context::essentials::{
 async fn test_import_map_file_path() {
     let user_rt_opts = UserWorkerRuntimeOpts::default();
     let opts = WorkerContextInitOpts {
-        service_path: "./test_cases/with_import_map".into(),
+        service_path: url::Url::parse(
+            "http://localhost:9000/crates/base/test_cases/with_import_map/index.ts",
+        )
+        .unwrap(),
         no_module_cache: false,
         import_map_path: Some("./test_cases/with_import_map/import_map.json".to_string()),
         env_vars: HashMap::new(),
@@ -49,7 +52,7 @@ async fn test_import_map_inline() {
             r#"{
         "imports": {
             "std/": "https://deno.land/std@0.131.0/",
-            "foo/": "./bar/"
+            "foo/": "http://localhost:9000/crates/base/test_cases/with_import_map/bar/"
         }
     }"#
         ),
@@ -61,7 +64,10 @@ async fn test_import_map_inline() {
         )
     );
     let opts = WorkerContextInitOpts {
-        service_path: "./test_cases/with_import_map".into(),
+        service_path: url::Url::parse(
+            "http://localhost:9000/crates/base/test_cases/with_import_map/index.ts",
+        )
+        .unwrap(),
         no_module_cache: false,
         import_map_path: Some(inline_import_map),
         env_vars: HashMap::new(),

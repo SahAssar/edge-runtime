@@ -10,7 +10,10 @@ use tokio::sync::oneshot;
 async fn test_tls_throw_invalid_data() {
     let user_rt_opts = UserWorkerRuntimeOpts::default();
     let opts = WorkerContextInitOpts {
-        service_path: "./test_cases/tls_invalid_data".into(),
+        service_path: url::Url::parse(
+            "http://localhost:9000/crates/base/test_cases/tls_invalid_data/index.ts",
+        )
+        .unwrap(),
         no_module_cache: false,
         import_map_path: None,
         env_vars: HashMap::new(),

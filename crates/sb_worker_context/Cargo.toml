@@ -17,3 +17,4 @@ hyper.workspace = true
 serde.workspace = true
 tokio.workspace = true
 uuid.workspace = true
+deno_core = { workspace = true }

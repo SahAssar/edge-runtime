@@ -1,6 +1,6 @@
 {
   "imports": {
     "std/": "https://deno.land/std@0.131.0/",
-    "foo/": "./bar/"
+    "foo/": "http://localhost:9000/crates/base/test_cases/with_import_map/bar/"
   }
 }

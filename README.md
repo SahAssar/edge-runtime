@@ -1,3 +1,11 @@
+# Forked Supabase Edge Runtime to work with remote urls
+* TODO: Add support for remote import maps
+* Patched to work with remote urls for workers:
+```
+cargo build && RUST_BACKTRACE=full ./target/debug/edge-runtime start --port 3010 --disable-module-cache --main-service http://localhost/workers/runner.dist.js --event-manager http://localhost/workers/event_manager.dist.js
+```
+* Automatic build of executable to github releases
+
 # Supabase Edge Runtime
 
 A web server based on [Deno](https://deno.land) runtime, capable of running JavaScript, TypeScript, and WASM services.
