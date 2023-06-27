@@ -11,7 +11,8 @@ async fn test_main_worker_options_request() {
     // create a user worker pool
     let user_worker_msgs_tx = create_user_worker_pool(None).await.unwrap();
     let opts = WorkerContextInitOpts {
-        service_path: "./test_cases/main".into(),
+        service_path: url::Url::parse("http://localhost:9000/crates/base/test_cases/main/index.ts")
+            .unwrap(),
         no_module_cache: false,
         import_map_path: None,
         env_vars: HashMap::new(),
@@ -49,7 +50,8 @@ async fn test_main_worker_post_request() {
     // create a user worker pool
     let user_worker_msgs_tx = create_user_worker_pool(None).await.unwrap();
     let opts = WorkerContextInitOpts {
-        service_path: "./test_cases/main".into(),
+        service_path: url::Url::parse("http://localhost:9000/crates/base/test_cases/main/index.ts")
+            .unwrap(),
         no_module_cache: false,
         import_map_path: None,
         env_vars: HashMap::new(),
@@ -91,7 +93,8 @@ async fn test_main_worker_boot_error() {
     // create a user worker pool
     let user_worker_msgs_tx = create_user_worker_pool(None).await.unwrap();
     let opts = WorkerContextInitOpts {
-        service_path: "./test_cases/main".into(),
+        service_path: url::Url::parse("http://localhost:9000/crates/base/test_cases/main/index.ts")
+            .unwrap(),
         no_module_cache: false,
         import_map_path: Some("./non-existing-import-map.json".to_string()),
         env_vars: HashMap::new(),
@@ -110,7 +113,7 @@ async fn test_main_worker_boot_error() {
 //    // create a user worker pool
 //    let user_worker_msgs_tx = create_user_worker_pool().await.unwrap();
 //    let opts = EdgeContextInitOpts {
-//        service_path: "./test_cases/main".into(),
+//        service_path: Url::parse("http://localhost:9000/crates/base/test_cases/main/index.ts").unwrap(),
 //        no_module_cache: false,
 //        import_map_path: None,
 //        env_vars: HashMap::new(),
@@ -146,7 +149,7 @@ async fn test_main_worker_boot_error() {
 //    // create a user worker pool
 //    let user_worker_msgs_tx = create_user_worker_pool().await.unwrap();
 //    let opts = EdgeContextInitOpts {
-//        service_path: "./test_cases/main".into(),
+//        service_path: Url::parse("http://localhost:9000/crates/base/test_cases/main/index.ts").unwrap(),
 //        no_module_cache: false,
 //        import_map_path: None,
 //        env_vars: HashMap::new(),

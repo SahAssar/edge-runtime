@@ -16,7 +16,7 @@ serve(async (req: Request) => {
     )
   }
 
-  const servicePath = `./test_cases/${service_name}`;
+  const servicePath = `http://localhost:9000/crates/base/test_cases/${service_name}/index.ts`;
   console.error(`serving the request with ${servicePath}`);
 
   const createWorker = async () => {

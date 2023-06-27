@@ -5,6 +5,7 @@ use deno_core::error::{custom_error, type_error, AnyError};
 use deno_core::futures::stream::Peekable;
 use deno_core::futures::{Stream, StreamExt};
 use deno_core::op;
+use deno_core::url::Url;
 use deno_core::{
     AsyncRefCell, AsyncResult, BufView, ByteString, CancelFuture, CancelHandle, CancelTryFuture,
     OpState, RcRef, Resource, ResourceId, WriteOutcome,
@@ -21,7 +22,6 @@ use serde::{Deserialize, Serialize};
 use std::borrow::Cow;
 use std::cell::RefCell;
 use std::collections::HashMap;
-use std::path::PathBuf;
 use std::pin::Pin;
 use std::rc::Rc;
 use std::task::{Context, Poll};
@@ -86,7 +86,7 @@ pub async fn op_user_worker_create(
         }
 
         let user_worker_options = WorkerContextInitOpts {
-            service_path: PathBuf::from(service_path),
+            service_path: Url::parse(&service_path).unwrap(),
             no_module_cache,
             import_map_path,
             env_vars: env_vars_map,

@@ -13,7 +13,8 @@ use tokio::sync::oneshot;
 async fn test_oak_server() {
     let user_rt_opts = UserWorkerRuntimeOpts::default();
     let opts = WorkerContextInitOpts {
-        service_path: "./test_cases/oak".into(),
+        service_path: url::Url::parse("http://localhost:9000/crates/base/test_cases/oak/index.ts")
+            .unwrap(),
         no_module_cache: false,
         import_map_path: None,
         env_vars: HashMap::new(),
@@ -46,7 +47,8 @@ async fn test_oak_server() {
 async fn test_file_upload() {
     let user_rt_opts = UserWorkerRuntimeOpts::default();
     let opts = WorkerContextInitOpts {
-        service_path: "./test_cases/oak".into(),
+        service_path: url::Url::parse("http://localhost:9000/crates/base/test_cases/oak/index.ts")
+            .unwrap(),
         no_module_cache: false,
         import_map_path: None,
         env_vars: HashMap::new(),
